@@ -15,7 +15,7 @@
 6. 每日早安文章推荐
 
 ## 快速开始
-1. 下载go-cqhttp并启动
+1. 下载go-cqhttp并启动，上报端口可设置为5701
 <a href='https://github.com/Mrs4s/go-cqhttp'>去go-cqhttp仓库</a>
 
 2. 下载项目并完成 config.py 配置
