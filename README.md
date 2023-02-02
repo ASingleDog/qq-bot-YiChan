@@ -7,16 +7,16 @@
 
 ## Ver.0.1.0 现有功能
 使用kamiya.dev、aa1.cn等平台提供的api得以实现以下功能：
-群聊AI绘画（按格式自定义tag / 自然语言解析提取）
-B站专栏沙雕图 / 小黑子 图爬虫爬取
-B站专栏搜图
-水群聊天
-群聊复读机
-每日早安文章推荐
+1. 群聊AI绘画（按格式自定义tag / 自然语言解析提取）
+2. B站专栏沙雕图 / 小黑子 图爬虫爬取
+3. B站专栏搜图
+4. 水群聊天
+5. 群聊复读机
+6. 每日早安文章推荐
 
 ## 快速开始
 1. 下载go-cqhttp并启动
-<a href='https://github.com/Mrs4s/go-cqhttp'>这里</a>
+<a href='https://github.com/Mrs4s/go-cqhttp'>去go-cqhttp仓库</a>
 
 2. 下载项目并完成 config.py 配置
 3. 安装依赖
