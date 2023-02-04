@@ -11,7 +11,7 @@ import jieba.posseg as pseg
 import asyncio
 
 template_pos_tags = ",best quality,highly detailed,\
-    ultra-detailed,illustration,camel_toe,full_body,stockings, {{{masterpiece}}},{extremely detailed CG \
+    ultra-detailed,illustration,camel_toe,full_body,stockings, {{{masterpiece}}},{extremely detailed CG}, \
     unity 8k,outdoors, \
     {wallpaper},Amazing,finely detail,cinematic lighting,close-up,{{floating hair}},\
     sky,{{wind}},detailed background,beautiful detailed eyes,bright pupils,{{full body}}, dynamic pose,dynamic angle,\
@@ -58,19 +58,17 @@ async def generate_image(pos_tag: str = "", neg_tag: str = "", width: int = 512,
         "step": 28,
         "scale": 12,
         "seed": math.floor(random.random() * 1000000000),
-        "sampler": "k_euler_ancestral",
+        "sampler": "DPM++ 2M Karras",
         "wh": "custom",
-        "resolution": f"{width}x{height}"
+        "resolution": f"{width}x{height}",
+        "dreambooth": "anything-v4.0-fp16-default",
     }
 
     header['content-type'] = 'application/json'
     res = await client.post('https://v1.kamiya.dev/api/generate-image', json=ai_setting, headers=header, timeout=10)
-    b64 = res.json()['output']
-    # 去除冗余
+    res = res.json()
     await client.aclose()
-    b64 = b64[27:]
-    b64 = re.sub(r'\n', '', b64)
-    return 'base64://' + b64
+    return res['output']
 
 
 async def novel_image(text: str, sender: dict):

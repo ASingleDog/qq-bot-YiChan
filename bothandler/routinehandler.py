@@ -5,6 +5,7 @@ import httpx
 import json
 import re
 import datetime
+import math
 from config import config
 from botmethod import *
 
@@ -28,9 +29,12 @@ async def get_news():
         news['share_url'] = re.sub(r'\\', '', news['share_url'])
         news['thumbnail'] = re.sub(r'\\', '', news['thumbnail'])
 
-        cq_code = f"[CQ:share,url={news['share_url']},title='{news['title']}',image={news['thumbnail']}]"
-        cq_code = re.sub(r'&', '&amp;', cq_code)
-        await send_group_msg(group['group_id'], cq_code)
+        # cq_code = f"[CQ:share,url={news['share_url']},title='{news['title']}',image={news['thumbnail']}]"
+        # cq_code = re.sub(r'&', '&amp;', cq_code)
+
+        # CQ分享容易被拦截，因此改用连接
+        share_msg = f"每日小文章~\n{news['title']}\n{news['share_url']}\n[CQ:image,file={news['thumbnail']}]"
+        await send_group_msg(group['group_id'], share_msg)
 
 
 # ( 秒数 自当日0:00点起 最高24*60*59, func, *args)
@@ -52,7 +56,8 @@ async def routine_route():
             aw_time = 24 * 60 * 60 - tm + sec_in_day
 
         await asyncio.sleep(aw_time)
-        await func(*args)
+        if math.fabs(tm - sec_in_day) < 60:
+            await func(*args)
 
     tasklist = []
     for i in range(len(routine_list)):

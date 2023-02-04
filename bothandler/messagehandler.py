@@ -119,7 +119,7 @@ async def uncaughtmsg_handler(msg: str, gid: int, sender: dict) -> str:
 
     # 第三个条件为判断是否超时五分钟
     if gid not in chat_is_on or not chat_is_on[gid] or time.time() - chat_is_on[gid] > 300:
-        if random.randint(0, 300) >= 1:
+        if random.randint(0, 150) >= 2:
             return ''
 
     # 防止每个问题都回
