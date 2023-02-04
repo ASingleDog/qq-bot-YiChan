@@ -10,6 +10,19 @@ import math
 import jieba.posseg as pseg
 import asyncio
 
+
+# 计算签证
+def uuid() ->str:
+    s = []
+    hexDigits = "0123456789abcdef"
+    for i in range(0, 36):
+        s.append(hexDigits[math.floor(random.random() * 0x10)])
+    s[14] = "4"
+    s[19] = hexDigits[ord(s[19]) & 0x3 | 0x8]
+    s[8] = s[13] = s[18] = s[23] = "-"
+    print("".join(s))
+    return "".join(s)
+
 template_pos_tags = ",best quality,highly detailed,\
     ultra-detailed,illustration,camel_toe,full_body,stockings, {{{masterpiece}}},{extremely detailed CG}, \
     unity 8k,outdoors, \
@@ -32,7 +45,7 @@ async def generate_image(pos_tag: str = "", neg_tag: str = "", width: int = 512,
     if width * height > 512 * 768:
         return None
     header = {
-        'accept': 'application/json, text/javascript',
+        'accept': '*/*',
         'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
         'content-type': 'application/x-www-form-urlencoded',
         'origin': 'https://www.kamiya.dev',
@@ -43,8 +56,8 @@ async def generate_image(pos_tag: str = "", neg_tag: str = "", width: int = 512,
         'sec-fetch-dest': 'empty',
         'sec-fetch-mode': 'cors',
         'sec-fetch-site': 'same-site',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                      Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.70'
+        'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\
+                  (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.78"
     }
 
     client = httpx.AsyncClient()
@@ -53,8 +66,8 @@ async def generate_image(pos_tag: str = "", neg_tag: str = "", width: int = 512,
     session_token = session_token.text
     ai_setting = {
         "pass": session_token,
-        "prompt": pos_tag + template_pos_tags,
-        "nprompt": neg_tag + template_neg_tags,
+        "prompt": pos_tag,
+        "nprompt": neg_tag,
         "step": 28,
         "scale": 12,
         "seed": math.floor(random.random() * 1000000000),
@@ -62,10 +75,12 @@ async def generate_image(pos_tag: str = "", neg_tag: str = "", width: int = 512,
         "wh": "custom",
         "resolution": f"{width}x{height}",
         "dreambooth": "anything-v4.0-fp16-default",
+        "progress_id": uuid()
     }
 
     header['content-type'] = 'application/json'
-    res = await client.post('https://v1.kamiya.dev/api/generate-image', json=ai_setting, headers=header, timeout=10)
+    header['accept'] = 'application/json, text/javascript'
+    res = await client.post('https://v1.kamiya.dev/api/generate-image', json=ai_setting, headers=header, timeout=60)
     res = res.json()
     await client.aclose()
     return res['output']
