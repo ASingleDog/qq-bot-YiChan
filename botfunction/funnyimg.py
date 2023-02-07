@@ -12,7 +12,7 @@ async def funny_image():
 
 async def cxk_img():
     crawler = CvCrawler()
-    cv_list = await crawler.craw_cv_list_from_readlist(608787)
+    cv_list = await crawler.craw_cv_list_from_readlist(615706)
     imgs_from_one = await crawler.craw_article_images(random.choice(cv_list))
     return random.choice(imgs_from_one)
 

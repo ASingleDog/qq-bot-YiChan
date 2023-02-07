@@ -111,29 +111,46 @@ chat_is_on = {}
 async def uncaughtmsg_handler(msg: str, gid: int, sender: dict) -> str:
     if gid in latest_words:
         if latest_words[gid] == msg:
-            return msg
+            if random.randint(0, 100) >= 30:
+                return msg
 
     latest_words[gid] = msg
 
     global chat_is_on
 
-    # 第三个条件为判断是否超时五分钟
+    # 判断是否在聊。第三个条件为判断是否超时五分钟
     if gid not in chat_is_on or not chat_is_on[gid] or time.time() - chat_is_on[gid] > 300:
-        if random.randint(0, 150) >= 2:
+        if random.randint(0, 100) >= 3:
             return ''
 
     # 防止每个问题都回
-    if random.randint(0, 100) < 10:
+    if random.randint(0, 100) < 20:
         return ''
 
-    return await chat_handler(msg, gid, sender)
+    ret_msg = await chat_handler(msg, gid, sender)
+    # 不是@的话不明白意思就不要回答
+    if re.findall(r'(听[清懂])|(不支持)|(知识盲区)|(其他)|(再说)|(慢点说)|(听到了?一点)', ret_msg):
+        return ''
+
+    return ret_msg
 
 
 async def chat_handler(msg: str, gid: int, sender: dict) -> str:
-    msg = re.sub(r'\[CQ.*]', '', msg)
+    latest_words[gid] = msg
     global chat_is_on
+    msg = re.sub(r'\[CQ.*]', '', msg)
+
+    # 判断是否被手动退出聊天
+    if re.findall(r'(不是[和跟叫说]你)|(没[和跟叫说]你)|(滚)|(爬)|(一边(呆着)?去)|(别掺和)|(退出聊天)|((不是|没)谈论你)', msg):
+        exit_words = [f"对不起，{config['self-addressing']}这就走，伊酱下次会做个听话的乖孩子的……",
+                      f"对不起，{config['self-addressing']}这就离开，请不要讨厌伊酱……"]
+        chat_is_on[gid] = False
+        return random.choice(exit_words)
+
     chat_is_on[gid] = time.time()
     # 小概率关掉，不能一直聊
     if random.randint(0, 100) < 10:
         chat_is_on[gid] = False
     return await xiaoai(msg)
+
+
