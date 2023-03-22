@@ -18,6 +18,8 @@ async def root(req: Request):
 async def req_router(data: dict):
     if data['post_type'] == 'message':
         return await msg_router(data)
+    elif data['post_type'] == 'request':
+        return {'approve': True}
 
 
-asyncio.create_task(routine_route())
+# asyncio.create_task(routine_route())

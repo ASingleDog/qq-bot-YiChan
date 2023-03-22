@@ -1,5 +1,4 @@
 import os
-
 import jieba
 
 from config import config
@@ -23,6 +22,7 @@ def uuid() ->str:
     print("".join(s))
     return "".join(s)
 
+
 template_pos_tags = ",best quality,highly detailed,\
     ultra-detailed,illustration,camel_toe,full_body,stockings, {{{masterpiece}}},{extremely detailed CG}, \
     unity 8k,outdoors, \
@@ -30,19 +30,21 @@ template_pos_tags = ",best quality,highly detailed,\
     sky,{{wind}},detailed background,beautiful detailed eyes,bright pupils,{{full body}}, dynamic pose,dynamic angle,\
     looking at viewer,detailed clothes"
 
-template_neg_tags = ''',missing fngers,extra digt ,fewer digits,low quality,watermark, bad feet,extra fingers,
-mutated hands,poorly drawn hands,fused fingers,too many fingers,bad anatomy, cropped, wort quality, low quality, normal,
-quality, jpeg artifacts,signature,watermark, bad feet,mutilated,too many fingers,malformed limbs,more than 2 knee,
-mutated hands,vore,pregnant,mutilated,morbid,bad proportions,missing legs,extra limbs,multiple breasts,
-(mutated hands and fingers:1.5 ), (long body :1.3), (mutation, poorly drawn :1.2) , black-white, bad anatomy,
-liquid tongue, disfigured, error, malformed hands, long neck, blurred, lowres, bad proportions, bad shadow,
- uncoordinated body, unnatural body, fused breasts, bad breasts, huge breasts, poorly drawn breasts, extra breasts,
- liquid breasts, heavy breasts, missing breasts, huge haunch, huge thighs, huge calf, bad hands, fused hand,
- missing hands'''
+template_neg_tags = ",{{nsfw}},missing fingers, missing toes, extra digt ,fewer digits,low quality,\
+    watermark, bad feet,extra fingers,mutated hands,poorly drawn hands,fused fingers,\
+    too many fingers,bad anatomy, cropped,wort quality, low quality, normal quality,\
+    jpeg artifacts,signature,watermark, bad feet,mutilated,\
+    too many fingers,malformed limbs,more than 2 knee,mutated hands,vore,pregnant,mutilated,morbid,bad proportions,\
+    missing legs,extra limbs,multiple breasts, (mutated hands and fingers:1.5 ), \
+    (long body :1.3), (mutation, poorly drawn :1.2) , black-white, bad anatomy, liquid tongue, \
+    disfigured, error, malformed hands, long neck, blurred, lowres, bad proportions, bad shadow,\
+     uncoordinated body, unnatural body, fused breasts, bad breasts, huge breasts, poorly drawn breasts, \
+     extra breasts, liquid breasts, heavy breasts, missing breasts, huge haunch, huge thighs, \
+     huge calf, bad hands, fused hand, missing hands"
 
 
 async def generate_image(pos_tag: str = "", neg_tag: str = "", width: int = 512, height: int = 768) ->str|None:
-    if width * height > 512 * 768:
+    if width * height > 1920 * 1080:
         return None
     header = {
         'accept': '*/*',
@@ -74,7 +76,7 @@ async def generate_image(pos_tag: str = "", neg_tag: str = "", width: int = 512,
         "sampler": "DPM++ 2M Karras",
         "wh": "custom",
         "resolution": f"{width}x{height}",
-        "dreambooth": "anything-v4.0-fp16-default",
+        "dreambooth": "AbyssOrangeMix2",
         "progress_id": uuid()
     }
 
@@ -92,6 +94,7 @@ async def novel_image(text: str, sender: dict):
     text = re.sub('）', ')', text)
     text = re.sub('【', '[', text)
     text = re.sub('】', ']', text)
+    text = re.sub('：', '', text)
 
     pos_tag = re.findall(r'(?<=正向标签)[a-zA-Z0-9,，{}()\[\]:\-\s]*', text)
     text = re.sub(r'正向标签[a-zA-Z0-9,，{}()\[\]:\-\s]*', '', text)
@@ -100,8 +103,8 @@ async def novel_image(text: str, sender: dict):
     else:
         pos_tag = ""
 
-    neg_tag = re.findall(r'(?<=反向标签)[a-zA-Z0-9,，{}()\[\]:\-\s]*', text)
-    text = re.sub(r'反向标签[a-zA-Z0-9,，{}()\[\]:\-\s]*', '', text)
+    neg_tag = re.findall(r'(?<=(反向|负向|负面)标签)[a-zA-Z0-9,，{}()\[\]:\-\s]*', text)
+    text = re.sub(r'(反向|负向|负面)标签[a-zA-Z0-9,，{}()\[\]:\-\s]*', '', text)
     if neg_tag:
         neg_tag = neg_tag[0]
     else:
